@@ -1517,7 +1517,7 @@ void DisplayServerWindows::process_events() {
 
 	MSG msg;
 
-	if (!drop_events) {
+	if (!drop_events && windows[MAIN_WINDOW_ID].window_has_focus) {
 		joypad->process_joypads();
 	}
 
