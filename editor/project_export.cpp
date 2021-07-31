@@ -259,7 +259,7 @@ void ProjectExportDialog::_edit_preset(int p_index) {
 		}
 
 		export_button->set_disabled(true);
-		get_ok()->set_disabled(true);
+		get_ok()->set_disabled(false);
 
 	} else {
 		export_error->hide();
