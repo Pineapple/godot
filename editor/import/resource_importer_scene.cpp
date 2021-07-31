@@ -1527,7 +1527,7 @@ Error ResourceImporterScene::import(const String &p_source_file, const String &p
 
 			Ref<PackedScene> packer = memnew(PackedScene);
 			packer->pack(child);
-			err = ResourceSaver::save(path, packer); //do not take over, let the changed files reload themselves
+			err = ResourceSaver::save(path, packer, ResourceSaver::FLAG_COMPRESS); //do not take over, let the changed files reload themselves
 			ERR_FAIL_COND_V_MSG(err != OK, err, "Cannot save scene to file '" + path + "'.");
 		}
 	}
@@ -1535,7 +1535,7 @@ Error ResourceImporterScene::import(const String &p_source_file, const String &p
 	Ref<PackedScene> packer = memnew(PackedScene);
 	packer->pack(scene);
 	print_verbose("Saving scene to: " + p_save_path + ".scn");
-	err = ResourceSaver::save(p_save_path + ".scn", packer); //do not take over, let the changed files reload themselves
+	err = ResourceSaver::save(p_save_path + ".scn", packer, ResourceSaver::FLAG_COMPRESS); //do not take over, let the changed files reload themselves
 	ERR_FAIL_COND_V_MSG(err != OK, err, "Cannot save scene to file '" + p_save_path + ".scn'.");
 
 	memdelete(scene);
