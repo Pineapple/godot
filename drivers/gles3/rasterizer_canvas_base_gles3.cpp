@@ -124,7 +124,7 @@ void RasterizerCanvasBaseGLES3::light_internal_update(RID p_rid, Light *p_light)
 	li->ubo_data.shadow_distance_mult = (p_light->radius_cache * 1.1);
 
 	glBindBuffer(GL_UNIFORM_BUFFER, li->ubo);
-	glBufferData(GL_UNIFORM_BUFFER, sizeof(LightInternal::UBOData), &li->ubo_data, GL_DYNAMIC_DRAW);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(LightInternal::UBOData), &li->ubo_data);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
