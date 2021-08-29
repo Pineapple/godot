@@ -3246,7 +3246,7 @@ void RasterizerStorageGLES3::_update_material(Material *material) {
 		}
 
 		glBindBuffer(GL_UNIFORM_BUFFER, material->ubo_id);
-		glBufferData(GL_UNIFORM_BUFFER, material->ubo_size, local_ubo, GL_STATIC_DRAW);
+		glBufferSubData(GL_UNIFORM_BUFFER, 0, material->ubo_size, local_ubo);
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 	}
 
