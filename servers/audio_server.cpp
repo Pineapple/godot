@@ -38,6 +38,8 @@
 #include "servers/audio/audio_driver_dummy.h"
 #include "servers/audio/effects/audio_effect_compressor.h"
 
+#include "modules/godot_tracy/profiler.h"
+
 #ifdef TOOLS_ENABLED
 #define MARK_EDITED set_edited(true);
 #else
@@ -955,6 +957,7 @@ void AudioServer::init() {
 }
 
 void AudioServer::update() {
+	ZoneScopedN("AudioServer::update");
 #ifdef DEBUG_ENABLED
 	if (ScriptDebugger::get_singleton() && ScriptDebugger::get_singleton()->is_profiling()) {
 		// Driver time includes server time + effects times

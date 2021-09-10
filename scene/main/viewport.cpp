@@ -51,6 +51,7 @@
 #include "scene/resources/mesh.h"
 #include "scene/scene_string_names.h"
 #include "servers/physics_2d_server.h"
+#include "modules/godot_tracy/profiler.h"
 
 void ViewportTexture::setup_local_to_scene() {
 	if (vp) {
@@ -211,6 +212,7 @@ void Viewport::_update_stretch_transform() {
 }
 
 void Viewport::update_worlds() {
+	ZoneScopedN("Viewport::update_worlds");
 	if (!is_inside_tree()) {
 		return;
 	}
@@ -422,6 +424,7 @@ void Viewport::_notification(int p_what) {
 }
 
 void Viewport::_process_picking(bool p_ignore_paused) {
+	ZoneScopedN("Viewport::_process_picking");
 	if (!is_inside_tree()) {
 		return;
 	}
