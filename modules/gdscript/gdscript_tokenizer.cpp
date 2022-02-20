@@ -506,13 +506,56 @@ void GDScriptTokenizerText::_advance() {
 
 #ifdef TOOLS_ENABLED
 				bool tooltip = GETCHAR(1) == '#';
-				String tooltip_text;
-				if (tooltip) {
-					_make_token(TK_TOOLTIP);
-					INCPOS(1);
-					return;
+
+				// check if tooltip comment
+				int tip_code_pos = code_pos + 1;
+				bool multiline = false;
+				do {
+					while (tip_code_pos < len && _code[tip_code_pos] != '\n') {
+						tip_code_pos++;
+					}
+
+					tip_code_pos++;
+
+					while (tip_code_pos < len && (_code[tip_code_pos] == ' ' || _code[tip_code_pos] == '\t' || _code[tip_code_pos] == '\r')) {
+						tip_code_pos++;
+					}
+
+					if (tip_code_pos + 2 < len) {
+						if (_code[tip_code_pos] == '#' && _code[tip_code_pos + 1] == '#') {
+							multiline = true;
+							tip_code_pos += 2;
+						} else {
+							multiline = false;
+						}
+					} else {
+						multiline = false;
+					}
+				} while (multiline);
+
+				bool export_var = true;
+				const int export_size = 6; // "export" - 6 CharType characters
+				if (tip_code_pos + export_size < len) {
+					const char *export_str = "export";
+					for (int e = 0; e < export_size; e++) {
+						if (_code[tip_code_pos + e] != export_str[e]) {
+							export_var = false;
+							break;
+						}
+					}
 				} else {
-					tooltip = GETCHAR(-1) == '#';
+					export_var = false;
+				}
+
+				String tooltip_text;
+				if (export_var) {
+					if (tooltip) {
+						_make_token(TK_TOOLTIP);
+						INCPOS(1);
+						return;
+					} else {
+						tooltip = GETCHAR(-1) == '#';
+					}
 				}
 #endif
 
