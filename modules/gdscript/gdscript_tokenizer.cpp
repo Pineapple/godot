@@ -505,58 +505,68 @@ void GDScriptTokenizerText::_advance() {
 #endif // DEBUG_ENABLED
 
 #ifdef TOOLS_ENABLED
-				bool tooltip = GETCHAR(1) == '#';
+				bool export_var = true;
 
-				// check if tooltip comment
-				int tip_code_pos = code_pos + 1;
-				bool multiline = false;
-				do {
-					while (tip_code_pos < len && _code[tip_code_pos] != '\n') {
+				if (GETCHAR(1) == '#' || GETCHAR(-1) == '#') {
+					// Check if it's a tooltip comment
+					int tip_code_pos = code_pos + 1;
+					bool multiline = false;
+					do {
+						// Move to the end of the line
+						while (tip_code_pos < len && _code[tip_code_pos] != '\n') {
+							tip_code_pos++;
+						}
+
+						// Skip '\n'
 						tip_code_pos++;
-					}
 
-					tip_code_pos++;
+						// Skip whitespaces
+						while (tip_code_pos < len && (_code[tip_code_pos] == ' ' || _code[tip_code_pos] == '\t' || _code[tip_code_pos] == '\r')) {
+							tip_code_pos++;
+						}
 
-					while (tip_code_pos < len && (_code[tip_code_pos] == ' ' || _code[tip_code_pos] == '\t' || _code[tip_code_pos] == '\r')) {
-						tip_code_pos++;
-					}
-
-					if (tip_code_pos + 2 < len) {
-						if (_code[tip_code_pos] == '#' && _code[tip_code_pos + 1] == '#') {
-							multiline = true;
-							tip_code_pos += 2;
+						// Check if "##" -> possible multiline tooltip
+						if (tip_code_pos + 2 < len) {
+							if (_code[tip_code_pos] == '#' && _code[tip_code_pos + 1] == '#') {
+								multiline = true;
+								tip_code_pos += 2;
+							} else {
+								multiline = false;
+							}
 						} else {
 							multiline = false;
 						}
-					} else {
-						multiline = false;
-					}
-				} while (multiline);
+					} while (multiline);
 
-				bool export_var = true;
-				const int export_size = 6; // "export" - 6 CharType characters
-				if (tip_code_pos + export_size < len) {
-					const char *export_str = "export";
-					for (int e = 0; e < export_size; e++) {
-						if (_code[tip_code_pos + e] != export_str[e]) {
-							export_var = false;
-							break;
+					// "export" - 6 CharType characters
+					const int export_size = 6;
+
+					// Check if there is "export" keyword after "##" comments
+					if (tip_code_pos + export_size < len) {
+						const char *export_str = "export";
+						for (int e = 0; e < export_size; e++) {
+							if (_code[tip_code_pos + e] != export_str[e]) {
+								export_var = false;
+								break;
+							}
 						}
+					} else {
+						export_var = false;
 					}
-				} else {
+				}
+				else {
 					export_var = false;
 				}
 
-				String tooltip_text;
 				if (export_var) {
-					if (tooltip) {
+					if (GETCHAR(1) == '#') {
 						_make_token(TK_TOOLTIP);
 						INCPOS(1);
 						return;
-					} else {
-						tooltip = GETCHAR(-1) == '#';
 					}
 				}
+
+				String tooltip_text;
 #endif
 
 				while (GETCHAR(0) != '\n') {
@@ -565,7 +575,7 @@ void GDScriptTokenizerText::_advance() {
 #endif // DEBUG_ENABLED
 
 #ifdef TOOLS_ENABLED
-					if (tooltip) {
+					if (export_var) {
 						tooltip_text += GETCHAR(0);
 						INCPOS(1);
 					} else
@@ -582,7 +592,7 @@ void GDScriptTokenizerText::_advance() {
 				}
 
 #ifdef TOOLS_ENABLED
-				if (tooltip) {
+				if (export_var) {
 					_make_constant(tooltip_text.trim_prefix("#").trim_prefix(" "));
 					return;
 				}
